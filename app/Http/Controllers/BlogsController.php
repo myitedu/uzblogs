@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\Rating;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Traits\Helper;
 
 class BlogsController extends Controller
 {
+    use Helper;
     public function blogs(Request $request){
         $keyword = $request->keyword??null;
         $keyword = strip_tags($keyword);
@@ -30,4 +33,39 @@ class BlogsController extends Controller
         $blog = Blog::find($id);
         return view('blog',compact('blog','request'));
     }
+
+    public function vote(Request $request, $blog_id){
+        $blog_id = (int) $blog_id;
+        $bid = $_POST['blog_id']??null;
+        $action = $_POST['action']??null;
+        $user_id = 1;
+
+        $bid = (int) $bid;
+        $action = (int) $action;
+        if ($bid != $blog_id){
+            return $this->respond(true,"401","Unauthorised request");
+        }
+        if (!$blog_id){
+            return $this->respond(true,"404","The blog id is invalid");
+        }
+        $blog = Blog::find($blog_id);
+        if (!$blog){
+            return $this->respond(true,"404","This blog does not exist");
+        }
+        $obj = Rating::where('blog_id', $blog_id)->where('user_id', $user_id)->first();
+       if (!$obj) {
+           $rating = Rating::create(
+               [
+               'blog_id' => $blog_id,
+               'user_id' => $user_id,
+               'ratings' => $action
+               ]
+           );
+           return $this->respond(false,"200","Your vote has been accepted");
+       }
+        return $this->respond(true,"200","Sorry, you have voted for this blog before");
+
+    }
+
+
 }

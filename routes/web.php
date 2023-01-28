@@ -15,3 +15,4 @@ use App\Http\Controllers\BlogsController;
 
 Route::get('/',[BlogsController::class,'blogs'])->name('blogs');
 Route::get('/blog/{id}',[BlogsController::class,'blog'])->name('blog');
+Route::post('/blog/vote/{blog_id}',[BlogsController::class,'vote'])->name('vote');

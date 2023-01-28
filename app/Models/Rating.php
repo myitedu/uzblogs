@@ -9,6 +9,8 @@ class Rating extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['blog_id','user_id','ratings'];
+
     public function blog(){
         return $this->belongsTo(Blog::class,'blog_id');
     }
