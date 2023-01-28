@@ -75,10 +75,15 @@
                                                            $stars = 0;
                                                            if ($qty) {
                                                                $stars = round($sum / $qty * 5);
+                                                                $stars = (int) $stars;
                                                            }
+                                                           for($index=0; $index<$stars; $index++){
+                                                               echo "<img class=\"rating_star\" src=\"/img/star_rating.png\"  alt=\"One star\">";
+
+                                                           }
+
                                                         @endphp
-                                                        <img class="rating_star" src="/img/star_rating.png"
-                                                             alt="One star">
+
                                                 </td>
                                             </tr>
                                             <tr>

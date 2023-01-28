@@ -44,12 +44,162 @@
                 <article class="blog-post">
                     <h2 class="blog-post-title mb-1">{{$blog->title}}</h2>
                     <p class="blog-post-meta">{{$blog->created_at}} by <a href="#">{{$blog->user->name}}</a></p>
+                    <div class="btn_rates">
+
+                        <button class="btn btn-info">Leave Comment</button>
+
+                        <div id="container">
+                            <div class="message">
+                                Thanks for Liking the Blog!
+                                <br>
+                                Your Likes are important!
+                            </div>
+                            <button class="yes">OK</button>
+                        </div>
+                        <input type="button" class="btn btn-success" value="Like" onclick="geeks();" />
+                        <div id="container2">
+                            <div class="message">
+                                You Disliked the Blog!
+                                <br>
+                                Please read again!
+                            </div>
+                            <button class="yes">OK</button>
+                        </div>
+                        <input type="button" class="btn btn-danger" value="Dislike" onclick="geeks2();" />
+
+                    </div>
+                    <br>
                     <p>{{$blog->description}}</p>
                     <hr>
-                    <p>{{$blog->long_description}}</p>
+                    <p class="long_description">{{$blog->long_description}}</p>
                 </article>
 
             </div>
         </div>
+        <div style="text-align: right">
+            <p style="text-align: center; font-size: larger; font-family: Cantarell; color: #0f6674;">Your comment goes here</p>
+        <form method="post">
+            <textarea class="comment_box placeholder="Your comment goes here"></textarea>
+            <br>
+            <button type="reset" class="btn btn-dark">Reset</button>
+            <button type="submit" class="btn btn-success">Post</button>
+        </form>
+        </div>
     </main>
+    <style>
+    .comment_box{
+        color: #ff0000;
+        width:100%;
+        height: 200px;
+        background-color: #e3dddd;
+    }
+    #container {
+        display: none;
+        background-image: linear-gradient(to right, #66a80f, #c0eb75);
+        background-size:cover;
+        color: white;
+        position: absolute;
+        width: 350px;
+        border-radius: 5px;
+        left: 50%;
+        margin-left: -160px;
+        padding: 16px 8px 8px;
+        box-sizing: border-box;
+    }
+    #container2 {
+        display: none;
+        background-image: linear-gradient(to right, #de0d0d, #ff7649);
+        background-size:cover;
+        color: white;
+        position: absolute;
+        width: 350px;
+        border-radius: 5px;
+        left: 50%;
+        margin-left: -160px;
+        padding: 16px 8px 8px;
+        box-sizing: border-box;
+    }
+    </style>
+    <script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        function geeks(msg, gfg) {
+            var confirmBox = $("#container");
+
+            /* Trace message to display */
+            confirmBox.find(".message").text(msg);
+
+            /* Calling function */
+            confirmBox.find(".yes").unbind().click(function()
+            {
+                confirmBox.hide();
+            });
+            confirmBox.find(".yes").click(gfg);
+            confirmBox.show();
+
+            confirmBox.find(".no").unbind().click(function()
+            {
+                confirmBox.hide();
+            });
+            confirmBox.find(".no").click(gfg);
+            confirmBox.show();
+        }
+        function geeks2(msg, gfg) {
+            var confirmBox = $("#container2");
+
+            /* Trace message to display */
+            confirmBox.find(".message").text(msg);
+
+            /* Calling function */
+            confirmBox.find(".yes").unbind().click(function()
+            {
+                confirmBox.hide();
+            });
+            confirmBox.find(".yes").click(gfg);
+            confirmBox.show();
+
+            confirmBox.find(".no").unbind().click(function()
+            {
+                confirmBox.hide();
+            });
+            confirmBox.find(".no").click(gfg);
+            confirmBox.show();
+        }
+        $(function () {
+            $(".btn-info").click(function () {
+                $(".long_description").toggle();
+            });
+
+            let btn_title = "Show Comments";
+            $(".btn_show_comments").click(function () {
+                let id = $(this).data('id');
+                $(".comment_"+id).toggle();
+                if (btn_title == 'Show Comments'){
+                    btn_title = "Hide Comments";
+                }else{
+                    btn_title = "Show Comments";
+                }
+                $(this).html(btn_title);
+            });
+
+            $(".span_rating").click(function () {
+                let id = $(this).data('id');
+                let rating = $(this).data('rating');
+                let parms = {
+                    blog_id:id,
+                    user_id:88,
+                    rating:rating
+                };
+                $.post('post_rating.php',parms, function (blog_id) {
+                    if (blog_id>0){
+                        document.location = "index.php#blog_id="+blog_id;
+                        return false;
+                    }
+                });
+            });
+
+        });
+    </script>
+
 @stop
