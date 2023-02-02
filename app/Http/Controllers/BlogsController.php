@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\Comment;
 use App\Models\Rating;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -65,6 +66,44 @@ class BlogsController extends Controller
        }
         return $this->respond(true,"200","Sorry, you have voted for this blog before");
 
+    }
+
+    public function post_comment(Request $request, $blog_id){
+        $user_id = 1;
+        $parms = $request->input();
+        $bid = (int) $parms['blog_id'];
+        $bid2 = (int) $blog_id;
+        $comment = $parms['comment']??null;
+        $comment = strip_tags($comment);
+        if (strlen($comment)<1){
+            return $this->respond(true,401,"Your comment is empty");
+        }
+        if ($bid!=$bid2){
+            return $this->respond(true,401,"Unauthorized Access");
+        }
+        $blog = Blog::find($bid);
+        if (!$blog){
+            return $this->respond(true,404,"No blog found by that id");
+        }
+        //safe zone
+
+
+        $create = Comment::create([
+            'blog_id'=>$bid,
+            'user_id' => $user_id,
+            'comment' => $comment
+        ]);
+        return redirect('/blog/'.$bid."?msg=Your comment has been posted");
+    }
+
+    public function users_blogs(Request $request, $user_id){
+        $user_id = (int) $user_id;
+        $user = User::find($user_id);
+        if (!$user){
+            return redirect('/');
+        }
+        $blogs = $user->blogs;
+        return view('user_blogs',compact('blogs','request'));
     }
 
 
