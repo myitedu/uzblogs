@@ -27,6 +27,7 @@ class BlogsController extends Controller
 
     public function blog(Request $request, $id){
         $id = (int) $id;
+        $show_comment = $request->show_comments??false;
         $validate_id = Blog::find($id);
         if (!$validate_id){
             return redirect()->route('blogs');
@@ -105,6 +106,5 @@ class BlogsController extends Controller
         $blogs = $user->blogs;
         return view('user_blogs',compact('blogs','request'));
     }
-
 
 }

@@ -43,7 +43,8 @@
     </nav>
     <main class="container">
         <div class="row g-5">
-            <div class="col-md-8">
+            <div class="col-md-12">
+
                 <article class="blog-post">
                     <h2 class="blog-post-title mb-1">{{$blog->title}}</h2>
                     <p class="blog-post-meta">{{$blog->created_at}} by <a href="/user/{{$blog->user->id}}/blogs">{{$blog->user->name}}</a></p>
@@ -53,7 +54,7 @@
                     @endif
 
                     @if(count($blog->comments))
-                        <div class="div_number_of_comments">There are <span class="number_of_comments">{{count($blog->comments)}}</span> comments for this blog</div>
+                        <div class="div_number_of_comments">There are <span class="number_of_comments">{{count($blog->comments)}}</span> <a href="/blog/{{$blog->id}}?show_comments=yes#bottom">comments</a> for this blog</div>
                     @endif
 
                     @if(count($blog->ratings))
@@ -84,6 +85,17 @@
                     <hr>
                     <p class="long_description">{{$blog->long_description}}</p>
                 </article>
+                @if($request->show_comments == 'yes')
+                <section id="comments">
+                    <h3>Comments</h3>
+                    @foreach($blog->comments as $comment)
+                    <div data-comment_id="1" class="single_comment">
+                        <div class="comment_text">{{$comment->comment}}</div>
+                        <p>Posted by <a href="/user/{{$comment->blog_id}}/blogs">{{$comment->user->name}}</a> on {{$comment->created_at}}</p>
+                    </div>
+                        @endforeach
+                </section>
+                @endif
 
                 <div id="comment_section">
                     <form method="post" action="/blog/post/{{$blog->id}}/comment">
@@ -99,27 +111,39 @@
                 <div class="btn_rates">
                     <div class="alert div_error"></div>
                     <button id="btn_leave_comment" class="btn btn-info">Leave Comment</button>
+                    <button id="btn_display_comments" class="btn btn-dark">Comments(10)</button>
                     <input data-action="1" type="button" class="btn btn-success btn_like_dislike" value="Like">
                     <input data-action="-1" type="button" class="btn btn-danger btn_like_dislike" value="Dislike">
                 </div>
 
             </div>
         </div>
-
+<div id="bottom"></div>
     </main>
 
     <script>
 
         $(function () {
+
+            $('html, body').animate({
+                scrollTop: $("#comment_section").offset().top
+            }, 1000);
+
+
             let close_div = null;
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+            $("#btn_display_comments").click(function () {
+               let blog_id = $("#myheader").data('blog_id');
+                document.location = "/blog/"+blog_id+"?show_comments=yes#bottom";
+            });
             $("#btn_leave_comment").click(function () {
                 $("#comment_section").slideToggle();
                 $(".long_description").toggle();
+                $("#comments").fadeOut('fast');
             });
             $(".btn_like_dislike").click(function () {
                let action = $(this).data('action');
@@ -147,6 +171,34 @@
 
     </script>
     <style>
+
+        .comment_text{
+            background-color: #f8f7ed;
+            border-radius: 8px;
+            padding: 5px;
+        }
+        .single_comment p{
+            color: grey;
+            padding-top: 10px;
+            text-align: right;
+        }
+        .single_comment{
+            border-top: 1px solid black;
+            padding: 10px;
+            margin: 10px;
+        }
+        #comments{
+            width: 88%;
+            min-height: 30%;
+            max-height: 90%;
+            z-index: 99;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f0e68c;
+            overflow: auto;
+            border-left: 8px solid darkred;
+            border-right: 8px solid darkred;
+        }
         .div_number_of_comments{
             text-align: center;
             margin-bottom: 20px;
