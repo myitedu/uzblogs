@@ -75,7 +75,7 @@ class BlogsController extends Controller
         $bid = (int) $parms['blog_id'];
         $bid2 = (int) $blog_id;
         $comment = $parms['comment']??null;
-        $comment = strip_tags($comment);
+        //$comment = strip_tags($comment);
         if (strlen($comment)<1){
             return $this->respond(true,401,"Your comment is empty");
         }

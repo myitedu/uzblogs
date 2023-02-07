@@ -1,7 +1,8 @@
 @extends('master')
 @section('title', 'Uzbek Blogs')
 @section('content')
-    <header id="myheader" data-blog_id="{{$blog->id}}">
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.0/classic/ckeditor.js"></script>
+    <header id="myheader" data-blog_id="{{$blog->id}}" data-show_comment="{{$request->show_comments}}">
         <div class="collapse bg-dark" id="navbarHeader">
             <div class="container">
                 <div class="row">
@@ -83,23 +84,34 @@
                     <hr>
                     <p>{{$blog->description}}</p>
                     <hr>
-                    <p class="long_description">{{$blog->long_description}}</p>
+                    <p class="long_description">{{$blog->long_description }}</p>
                 </article>
-                @if($request->show_comments == 'yes')
+
+                <div id="bottom"></div>
+
+                @if($request->show_comments == 'yes' && count($blog->comments))
                 <section id="comments">
                     <h3>Comments</h3>
-                    @foreach($blog->comments as $comment)
+                    @foreach($blog->comments as $id=> $comment)
                     <div data-comment_id="1" class="single_comment">
-                        <div class="comment_text">{{$comment->comment}}</div>
-                        <p>Posted by <a href="/user/{{$comment->blog_id}}/blogs">{{$comment->user->name}}</a> on {{$comment->created_at}}</p>
+                        <div class="comment_text">
+                            <div class="comment_id">{{++$id}}</div>
+                            {!! $comment->comment !!}
+                        </div>
+                        <div class="comment_links">
+                            Posted by <a href="/user/{{$comment->blog_id}}/blogs">{{$comment->user->name}}</a> on {{$comment->created_at}}
+                            | <a href="#" class="btn_leave_comment">Reply</a>
+                        </div>
                     </div>
                         @endforeach
                 </section>
                 @endif
 
+
+
                 <div id="comment_section">
                     <form method="post" action="/blog/post/{{$blog->id}}/comment">
-                        <p><textarea name="comment" placeholder="Leave Your Comment"></textarea></p>
+                        <p><textarea id="comment_textarea" name="comment" placeholder="Leave Your Comment"></textarea></p>
                         <p>
                             @csrf
                             <input name="blog_id" type="hidden" value="{{$blog->id}}">
@@ -110,24 +122,40 @@
                 </div>
                 <div class="btn_rates">
                     <div class="alert div_error"></div>
-                    <button id="btn_leave_comment" class="btn btn-info">Leave Comment</button>
-                    <button id="btn_display_comments" class="btn btn-dark">Comments(10)</button>
+                    <button class="btn btn-info btn_leave_comment">Leave Comment</button>
+                    @if(count($blog->comments))
+                        @if($request->show_comments=='yes')
+                            <button class="btn btn-danger btn_hide_comments">Hide Comments</button>
+                        @else
+                            <button class="btn btn-dark btn_display_comments">Comments({{count($blog->comments)}})</button>
+                        @endif
+                        @endif
                     <input data-action="1" type="button" class="btn btn-success btn_like_dislike" value="Like">
                     <input data-action="-1" type="button" class="btn btn-danger btn_like_dislike" value="Dislike">
                 </div>
 
             </div>
         </div>
-<div id="bottom"></div>
+
+        <script>
+            ClassicEditor.create( document.querySelector( '#comment_textarea' ) );
+        </script>
+
+
     </main>
-
     <script>
-
         $(function () {
+            let show_comment = $("#myheader").data("show_comment");
 
-            $('html, body').animate({
-                scrollTop: $("#comment_section").offset().top
-            }, 1000);
+
+            if (show_comment=='yes') {
+                $('html, body').animate({
+                    scrollTop: $("#bottom").offset().top
+                }, 100);
+            }
+
+
+
 
 
             let close_div = null;
@@ -136,11 +164,15 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            $("#btn_display_comments").click(function () {
+            $(".btn_hide_comments").click(function () {
+               $("#comments").fadeOut("slow");
+               document.location="/blog/{{$blog->id}}";
+            });
+            $(".btn_display_comments").click(function () {
                let blog_id = $("#myheader").data('blog_id');
                 document.location = "/blog/"+blog_id+"?show_comments=yes#bottom";
             });
-            $("#btn_leave_comment").click(function () {
+            $(".btn_leave_comment").click(function () {
                 $("#comment_section").slideToggle();
                 $(".long_description").toggle();
                 $("#comments").fadeOut('fast');
@@ -171,11 +203,50 @@
 
     </script>
     <style>
+        .comment_text p{
+            text-align: left !important;
+        }
+        .comment_id{
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-weight: bolder;
+            background-color: #dad285;
+            color: #950909;
+            position: relative;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            float: left;
+            margin-right: 20px;
+        }
+        .comment_links a:hover{
+            color: darkblue;
+            text-decoration: underline;
+        }
+        .comment_links a{
+            text-decoration: none;
+            color: darkred;
+        }
+
+        .comment_links{
+            text-align: center;
+            background-color: #dad284;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+        }
 
         .comment_text{
             background-color: #f8f7ed;
             border-radius: 8px;
             padding: 5px;
+            min-height: 100px;
+            max-height: 500px;
+            overflow: auto;
+            text-align: left;
         }
         .single_comment p{
             color: grey;
@@ -230,6 +301,7 @@
         #comment_section textarea{
             border-radius: 12px;
             width: 80%;
+            height: 200px;
             min-height: 150px;
             max-height: 300px;
             margin-top: 30px;

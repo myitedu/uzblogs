@@ -17,7 +17,7 @@ class Blog extends Model
     }
 
     public function comments(){
-        return $this->hasMany(Comment::class,'blog_id');
+        return $this->hasMany(Comment::class,'blog_id')->orderBy('id','desc');
     }
 
     use HasFactory;
